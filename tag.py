@@ -20,9 +20,9 @@ def create_paper_entry(paper_name, total_marks, cursor):
     cursor.execute('INSERT INTO papers (paper_name, total_marks) VALUES (%s, %s)', (paper_name, total_marks))
 
 # Function to add a question to the database
-def add_question_to_db(paper_id, difficulty, topic, marks, cursor):
+def add_question_to_db(paper_id, difficulty, topic, marks, question_path, cursor):
     cursor.execute('INSERT INTO questions (paper_id, question_path, question_difficulty, topic_name, question_marks) VALUES (%s, %s, %s, %s, %s)',
-                   (paper_id, 'path_to_question_folder', difficulty, topic, marks))
+                   (paper_id, question_path, difficulty, topic, marks))
 
 # Function to process a paper and its questions
 def process_paper(paper_path, cursor):
@@ -37,6 +37,7 @@ def process_paper(paper_path, cursor):
     questions_path = os.path.join(paper_path, 'Questions')
     for question_folder in os.listdir(questions_path):
         question_path = os.path.join(questions_path, question_folder)
+        print(question_path)
         if os.path.isdir(question_path):
             difficulty = input(f"Enter difficulty for {question_folder}: ")
             topic = input(f"Enter topic for {question_folder}: ")
@@ -47,7 +48,7 @@ def process_paper(paper_path, cursor):
             paper_id = cursor.fetchone()[0]
             
             # Add the question to the database
-            add_question_to_db(paper_id, difficulty, topic, marks, cursor)
+            add_question_to_db(paper_id, difficulty, topic, marks, question_path, cursor)
 
 # Main function to process question papers in the 'data' folder
 def process_question_papers():
@@ -61,6 +62,7 @@ def process_question_papers():
             paper_path = os.path.join(data_folder, paper_name)
             print(paper_path)
             if os.path.isdir(paper_path):
+                print(paper_path)
                 process_paper(paper_path, cursor)
         
         conn.commit()
