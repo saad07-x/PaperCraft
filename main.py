@@ -66,19 +66,48 @@ def get_question_info(difficulty, topic, marks):
         raise e
     finally:
         conn.close()
+        
 
+def create_folder_in_generated(name):
+    generated_folder = 'generated'
+    new_folder_path = os.path.join(generated_folder, name)
+
+    try:
+        os.mkdir(new_folder_path)
+        print(f"Folder '{name}' created successfully inside 'generated'.")
+    except FileExistsError:
+        print(f"Folder '{name}' already exists inside 'generated'.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        
+def copy_folder(source_path, destination_path):
+    try:
+        shutil.copytree(source_path, destination_path)
+        print(f"Folder copied from '{source_path}' to '{destination_path}' successfully.")
+    except FileExistsError:
+        print(f"Destination folder '{destination_path}' already exists. Copy operation aborted.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        
 if __name__ == "__main__":
+    # Example usage:
+    folder_name = 'testing'
+    create_folder_in_generated(folder_name)
+
     question_difficulty = "hard"
     topic_name = "algebra"
     question_marks = 10
 
+    path = 'generated' + "\\" + folder_name
     try:
         setup_database()
         question_info = get_question_info(question_difficulty, topic_name, question_marks)
         if question_info:
             question_path, paper_name = question_info
             print(f"Question Path: {question_path}")
-            print(f"Paper Name: {paper_name}")
+            print(f"New paper Path: {path}")
+            copy_folder(question_path, path + "\\" + 'Question 1')
+
         else:
             print("No matching question found.")
     except Exception as e:
