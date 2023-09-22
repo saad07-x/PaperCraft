@@ -144,6 +144,7 @@ if __name__ == "__main__":
     current_total_marks = 0
 
     for question in range(num_questions):
+        print ("For Question " + str(question + 1))
         question_difficulty = input("Enter question difficulty: ")
         topic_name = input("Enter topic name: ")
         
