@@ -2,6 +2,11 @@ import mysql.connector
 import os
 import shutil
 import re
+import zipfile
+from pathlib import Path
+import subprocess
+import shlex
+import re
 added_question_ids = set()
 
 DB_CONFIG = {
@@ -134,13 +139,25 @@ def update_main_tex(main_tex_path, tex_file_relative_path):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-if __name__ == "__main__":
-    
+def zip_folder(folder_path, zip_path):
+    try:
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, _, files in os.walk(folder_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, folder_path)
+                    zipf.write(file_path, arcname)
+        print(f"Folder '{folder_path}' successfully compressed to '{zip_path}'")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+if __name__ == "__main__":    
+
     folder_name = input("Enter New Paper Name: " )
     new_paper_folder = create_folder_in_generated(folder_name)
     copy_files_to_folder('common', new_paper_folder)
     total_marks = int(input("Enter Total Marks: "))
-    num_questions = 2
+    num_questions = int(input("Enter the number of questions you want to enter: "))
     current_total_marks = 0
 
     for question in range(num_questions):
@@ -152,12 +169,12 @@ if __name__ == "__main__":
         # question_marks = int(input("Enter question marks: "))
         
         if current_total_marks <= total_marks:
+
             try:
                 setup_database()
-                # Fetch question_marks from the database
                 question_marks, question_path, paper_name = get_question_info(question_difficulty, topic_name, total_marks - current_total_marks)
                 if question_path and question_marks is not None:
-                    if question_path not in added_question_ids:  # Check if the question hasn't been added before
+                    if question_path not in added_question_ids: 
                         added_question_ids.add(question_path)
                         print(f"Question Path: {question_path}")
                         print(f"New paper Path: {new_paper_folder}")
@@ -177,3 +194,8 @@ if __name__ == "__main__":
                 print(f"An error occurred: {e}")
         else:
             print("Adding this question would exceed the total marks. Please re-enter.")
+    
+    folder_to_zip = "generated/"+ folder_name  
+    output_zip_file = "generated/" + folder_name + ".zip"  
+
+    zip_folder(folder_to_zip, output_zip_file)
