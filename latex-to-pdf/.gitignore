@@ -1,0 +1,12 @@
+# VSCode
+.vscode
+
+# Resources
+/resources/*
+!/resources/latex.zip
+
+# Output
+/extracted
+
+# tmp
+/tmp
